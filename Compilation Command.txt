@@ -1,0 +1,1 @@
+g++ DBMSbody.cpp AddonsForCommands.cpp AddonsManagingDirectories.cpp Commands.cpp Conversion.cpp ManagingDirectories.cpp Server.cpp -o ServerStart
