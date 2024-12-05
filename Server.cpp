@@ -8,6 +8,7 @@
 #include <sstream>
 #include "header.hpp"
 #include <csignal>
+#include <thread>
 using namespace std;
 
 
@@ -109,17 +110,18 @@ int main() {
     signal(SIGINT, SignalCheck);
 
     while (running) {
-        // принятие входящего подключения
         clientSocket = accept(serverSocket, (struct sockaddr*)&clientSettings, &clientSetLen);
         if (clientSocket < 0) {
-            if (!running) break; // Если сервер останавливается, выходим из цикла
-            cout << endl << endl << "SERVER: Ошибка подключения клиента!!!" << endl;
+            if (!running) break;
+            cout << "Ошибка подключения клиента!" << endl;
             continue;
         }
-
-        cout << endl << "SERVER: Клиент подключен!!! IP: " << inet_ntoa(clientSettings.sin_addr) << endl;
-        ConnectionProcessing(clientSocket, serverSocket, toClient);
+        
+        // новый поток для каждого клиента
+        thread stream(ConnectionProcessing, clientSocket, serverSocket, ref(toClient));//ref передает ссылку
+        stream.detach(); // работать асинхронно
     }
+    
 
     close(serverSocket);
     cout << "SERVER: Завершение работы." << endl;
